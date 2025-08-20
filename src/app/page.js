@@ -21,34 +21,33 @@ export default function InputPage() {
       .map((ref) => ref?.value.trim())
       .filter((v) => v);
 
-    try {
-      const res = await fetch(
-        "https://hook.us2.make.com/wpkh4dguk341xxy5gs2hqhelk2evx1nt",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-make-apikey": "ecXU-sDLB-hm6Ue",
-          },
-          body: JSON.stringify({
-            model: "DeepSeek R1T2 Chimera",
-            temperature: 0.0,
-            max_tokens: 1000,
-            companies,
-          }),
-        }
-      );
-
-      if (res.ok) {
-        setMessage("✅ Data sent successfully!");
-      } else {
-        setMessage("❌ Error sending data.");
-      }
-    } catch (error) {
-      console.error(error);
-      setMessage("⚠️ Failed to connect to webhook.");
-    } finally {
+    if (!companies.length) {
+      setMessage("❌ Please enter at least one company.");
       setLoading(false);
+      return;
+    }
+
+    // in your InputPage handleSubmit (client)
+    try {
+      const res = await fetch("/api/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ companies }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.html) {
+        setMessage(data.html); // render returned raw HTML
+        console.log("Generated HTML:", data.html);
+        // optional: inspect candidate lists from server debug
+        console.log("Debug candidates:", data.debug?.companyCandidates);
+      } else {
+        console.error("API error:", data);
+        setMessage("❌ Error: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("⚠️ Failed to connect to server.");
     }
   };
 
@@ -71,7 +70,12 @@ export default function InputPage() {
           {loading ? "Sending..." : "Submit"}
         </button>
       </form>
-      {message && <p className="message">{message}</p>}
+      {message && (
+        <div
+          className="message"
+          dangerouslySetInnerHTML={{ __html: message }}
+        />
+      )}
     </div>
   );
 }
