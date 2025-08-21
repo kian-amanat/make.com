@@ -268,17 +268,17 @@ For IaC companies, choose the single best official link for: website, contact, e
 Write a 2–3 sentence plain-text description of the IaC company (no markdown, no citations). Then output the final result STRICTLY as raw HTML only (no JSON, no commentary) using this exact card format (replace placeholders with the actual links):
 
 <div class="tool-card">
-  <div class="tool-header"><h2 class="tool-title">Company Name</h2></div>
-  <p class="tool-description">Company description here.</p>
+  <div class="tool-header"><h2 class="tool-title">COMPANY_NAME</h2></div>
+  <p class="tool-description">Two to three sentence description about how this company serves about company.</p>
   <div class="tool-socials">
-    <a href="WEBSITE">🌐 Website</a>
-    <a href="X_LINK">X</a>
-    <a href="LINKEDIN_LINK">🔗 LinkedIn</a>
-    <a href="YOUTUBE_LINK">YouTube</a>
-    <a href="mailto:EMAIL">📧 Email</a>
+    <a style="display:block" href="WEBSITE">🌐 Website</a>
+    <a style="display:block" href="X_LINK">X</a>
+    <a style="display:block" href="LINKEDIN_LINK">🔗 LinkedIn</a>
+    <a style="display:block" href="YOUTUBE_LINK">YouTube</a>
   </div>
   <div class="tool-contact">
-    <a href="CONTACT_LINK">Contact</a> | <a href="REVIEWS_LINK">⭐ Reviews</a>
+    <a style="display:block" href="CONTACT_LINK">Contact</a>
+    <a style="display:block" href="REVIEWS_LINK">⭐ Reviews</a>
   </div>
   <div class="tool-action"><button type="button">Request A Quote</button></div>
 </div>
@@ -300,10 +300,21 @@ ${JSON.stringify(companyCandidates, null, 2)}
         Authorization: `Bearer ${OPENAI_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4.1-mini",
+        model: "gpt-4o-mini",
         input: prompt,
         temperature: 0,
-        max_output_tokens: 2500,
+        max_output_tokens: 1000,
+        // Enable web search plugin
+        tools: [
+          {
+            name: "web_search",
+            type: "web_search",
+          },
+        ],
+        // Optionally allow browsing
+        browsing: {
+          enabled: true,
+        },
       }),
     });
 
@@ -414,10 +425,6 @@ ${JSON.stringify(companyCandidates, null, 2)}
         socialsArr.push(`<a href="${escapeHtml(linkedin)}">🔗 LinkedIn</a>`);
       if (youtube)
         socialsArr.push(`<a href="${escapeHtml(youtube)}">YouTube</a>`);
-      if (emailCandidate)
-        socialsArr.push(
-          `<a href="mailto:${escapeHtml(emailCandidate)}">📧 Email</a>`
-        );
 
       const socials = socialsArr.join(" ");
       const contactPart = contact
@@ -435,11 +442,12 @@ ${JSON.stringify(companyCandidates, null, 2)}
     name || companyEntry.name || "Company"
   )}</h2></div>
   <p class="tool-description">${escapeHtml(description)}</p>
-  <div class="tool-socials">
+  <div class="tool-socials" style="display:block">
     ${socials}
   </div>
-  <div class="tool-contact">
-    ${contactPart}${reviewsPart}
+  <div class="tool-contact" style="display:block">
+    ${contactPart}
+    ${reviewsPart}
   </div>
   <div class="tool-action"><button type="button">Request A Quote</button></div>
 </div>
