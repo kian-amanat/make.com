@@ -128,14 +128,14 @@ Exact template to produce (replace tokens appropriately for each company):
   <div class="tool-header"><h2 class="tool-title">COMPANY_NAME</h2></div>
   <p class="tool-description">Two to three sentence description about how this company serves "${query}".</p>
   <div class="tool-socials">
-    <a style="display:block" href="WEBSITE">🌐 Website</a>
+    <a style="display:block" href="WEBSITE"> Website</a>
     <a style="display:block" href="X_LINK">X</a>
-    <a style="display:block" href="LINKEDIN_LINK">🔗 LinkedIn</a>
-    <a style="display:block" href="YOUTUBE_LINK">YouTube</a>
+    <a style="display:block" href="LINKEDIN_LINK"> LinkedIn</a>
+    <a c href="YOUTUBE_LINK">YouTube</a>
   </div>
   <div class="tool-contact">
-    <a style="display:block" href="CONTACT_LINK">Contact</a>
-    <a style="display:block" href="REVIEWS_LINK">⭐ Reviews</a>
+    <a style="display:block" href="WEBSITE/CONTACT">Contact</a>
+    <a style="display:block" href="REVIEWS_LINK"> Reviews</a>
   </div>
   <div class="tool-action"><button type="button">Request A Quote</button></div>
 </div>

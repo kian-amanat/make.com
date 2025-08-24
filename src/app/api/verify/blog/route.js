@@ -8,71 +8,46 @@ export async function POST(req) {
   try {
     const { topic, length, keyword } = await req.json();
 
-    // Validate input
     if (!topic || !length || !keyword) {
-      return new Response(JSON.stringify({ error: "Missing input fields" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        "Missing input fields: topic, length, and keyword are required.",
+        { status: 400, headers: { "Content-Type": "text/plain" } }
+      );
     }
 
-    // AI prompt with web search instructions
     const prompt = `
-You are an AI that can access live web information.
-Generate a detailed SEO-optimized blog post with the following inputs:
+You are an AI with live web access. Write a **full SEO-optimized blog post**:
 
 Topic: ${topic}
 Word Length: ${length}
-Focus SEO Keyword: ${keyword}
+Focus Keyword: ${keyword}
 
 Requirements:
-1. Include the main keyword naturally throughout the post.
-2. Use headings (h2, h3) and lists where appropriate.
-3. Include exactly 10 relevant **external links** from live web sources.
-4. Generate SEO metadata: meta title, meta description, focus keyword, slug.
-5. Output format: JSON:
-
-{
-  "blog": {
-    "title": "...",
-    "content": "...",
-    "links": ["...", "..."]
-  },
-  "seo": {
-    "meta_title": "...",
-    "meta_description": "...",
-    "focus_keyword": "...",
-    "slug": "..."
-  }
-}
-
-Do not include markdown or extra text outside JSON. Use only real URLs from the web.
+- Natural, human-readable blog format (headings, paragraphs, subheadings).
+- Use the keyword naturally throughout the post.
+- Include **fully corrected, real, relevant links**.
+- At the end, provide a small SEO snippet: meta title, meta description, and suggested slug.
+- Output plain text only. Do NOT output JSON or markdown.
 `;
 
-    // Call OpenAI web-enabled model
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Web-enabled model
+      model: "gpt-4.1",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
     });
 
-    const aiText = response.choices[0].message.content;
+    const blogText = response.choices[0].message.content;
 
-    // Parse AI JSON output
-    const jsonOutput = JSON.parse(aiText);
-
-    return new Response(JSON.stringify(jsonOutput), {
+    // Return plain text directly
+    return new Response(blogText, {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
   } catch (error) {
     console.error("Error generating blog:", error);
-    return new Response(
-      JSON.stringify({
-        error: "Failed to generate blog",
-        details: error.message,
-      }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(`Failed to generate blog: ${error.message}`, {
+      status: 500,
+      headers: { "Content-Type": "text/plain" },
+    });
   }
 }
